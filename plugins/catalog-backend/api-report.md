@@ -31,6 +31,7 @@ import { ResourceEntityV1alpha1 } from '@backstage/catalog-model';
 import { Router } from 'express';
 import { ScmIntegrationRegistry } from '@backstage/integration';
 import { ScmIntegrations } from '@backstage/integration';
+import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 import { TokenManager } from '@backstage/backend-common';
 import { UrlReader } from '@backstage/backend-common';
 import { Validators } from '@backstage/catalog-model';
@@ -301,6 +302,7 @@ export type CatalogEnvironment = {
   database: PluginDatabaseManager;
   config: Config;
   reader: UrlReader;
+  permissions: ServerPermissionClient;
 };
 
 // Warning: (ae-missing-release-tag) "CatalogProcessingEngine" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
@@ -1338,6 +1340,10 @@ export class NextCatalogBuilder {
 //
 // @public (undocumented)
 export interface NextRouterOptions {
+  // Warning: (ae-forgotten-export) The symbol "AuthorizedRefreshService" needs to be exported by the entry point index.d.ts
+  //
+  // (undocumented)
+  authorizedRefreshService?: AuthorizedRefreshService;
   // (undocumented)
   config: Config;
   // (undocumented)
@@ -1348,8 +1354,6 @@ export interface NextRouterOptions {
   locationService: LocationService;
   // (undocumented)
   logger: Logger_2;
-  // (undocumented)
-  refreshService?: RefreshService;
 }
 
 // Warning: (ae-missing-release-tag) "notFoundError" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)

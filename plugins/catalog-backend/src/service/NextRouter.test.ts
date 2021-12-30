@@ -21,15 +21,16 @@ import type { Entity, LocationSpec, Location } from '@backstage/catalog-model';
 import express from 'express';
 import request from 'supertest';
 import { EntitiesCatalog } from '../catalog';
-import { LocationService, RefreshService } from './types';
+import { LocationService } from './types';
 import { basicEntityFilter } from './request';
 import { createNextRouter } from './NextRouter';
+import { AuthorizedRefreshService } from './AuthorizedRefreshService';
 
 describe('createNextRouter readonly disabled', () => {
   let entitiesCatalog: jest.Mocked<EntitiesCatalog>;
   let locationService: jest.Mocked<LocationService>;
   let app: express.Express;
-  let refreshService: RefreshService;
+  let authorizedRefreshService: AuthorizedRefreshService;
 
   beforeAll(async () => {
     entitiesCatalog = {
@@ -44,12 +45,14 @@ describe('createNextRouter readonly disabled', () => {
       listLocations: jest.fn(),
       deleteLocation: jest.fn(),
     };
-    refreshService = { refresh: jest.fn() };
+    authorizedRefreshService = {
+      refresh: jest.fn(),
+    } as unknown as AuthorizedRefreshService;
     const router = await createNextRouter({
       entitiesCatalog,
       locationService,
       logger: getVoidLogger(),
-      refreshService,
+      authorizedRefreshService,
       config: new ConfigReader(undefined),
     });
     app = express().use(router);
@@ -64,11 +67,23 @@ describe('createNextRouter readonly disabled', () => {
       const response = await request(app)
         .post('/refresh')
         .set('Content-Type', 'application/json')
+        .set('authorization', 'Bearer someauthtoken')
         .send({ entityRef: 'Component/default:foo' });
       expect(response.status).toBe(200);
-      expect(refreshService.refresh).toHaveBeenCalledWith({
-        entityRef: 'Component/default:foo',
-      });
+      expect(authorizedRefreshService.refresh).toHaveBeenCalledWith(
+        {
+          entityRef: 'Component/default:foo',
+        },
+        'someauthtoken',
+      );
+    });
+
+    it('sends a 401 when no auth token is present', async () => {
+      const response = await request(app)
+        .post('/refresh')
+        .set('Content-Type', 'application/json')
+        .send({ entityRef: 'Component/default:foo' });
+      expect(response.status).toBe(401);
     });
   });
   describe('GET /entities', () => {
