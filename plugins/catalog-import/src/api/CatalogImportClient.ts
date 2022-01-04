@@ -173,7 +173,7 @@ the component will become available.\n\nFor more information, read an \
   }: {
     repo: string;
   }): Promise<PartialEntity[]> {
-    const idToken = await this.identityApi.getIdToken();
+    const { token: idToken } = await this.identityApi.getCredentials();
     const response = await fetch(
       `${await this.discoveryApi.getBaseUrl('catalog')}/analyze-location`,
       {

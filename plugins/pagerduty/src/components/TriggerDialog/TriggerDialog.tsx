@@ -34,6 +34,7 @@ import {
   alertApiRef,
   identityApiRef,
 } from '@backstage/core-plugin-api';
+import { parseEntityRef } from '@backstage/catalog-model';
 
 type Props = {
   showDialog: boolean;
@@ -49,18 +50,20 @@ export const TriggerDialog = ({
   const { name, integrationKey } = usePagerdutyEntity();
   const alertApi = useApi(alertApiRef);
   const identityApi = useApi(identityApiRef);
-  const userName = identityApi.getUserId();
   const api = useApi(pagerDutyApiRef);
   const [description, setDescription] = useState<string>('');
 
   const [{ value, loading, error }, handleTriggerAlarm] = useAsyncFn(
-    async (descriptions: string) =>
+    async (descriptions: string) => {
+      const { userEntityRef } = await identityApi.getBackstageIdentity();
+      const { name: userName } = parseEntityRef(userEntityRef);
       await api.triggerAlarm({
         integrationKey: integrationKey as string,
         source: window.location.toString(),
         description: descriptions,
         userName,
-      }),
+      });
+    },
   );
 
   const descriptionChanged = (
@@ -73,7 +76,7 @@ export const TriggerDialog = ({
     if (value) {
       (async () => {
         alertApi.post({
-          message: `Alarm successfully triggered by ${userName}`,
+          message: `Alarm successfully triggered`,
         });
 
         handleDialog();
@@ -83,7 +86,7 @@ export const TriggerDialog = ({
         onIncidentCreated?.();
       })();
     }
-  }, [value, alertApi, handleDialog, userName, onIncidentCreated]);
+  }, [value, alertApi, handleDialog, onIncidentCreated]);
 
   if (error) {
     alertApi.post({

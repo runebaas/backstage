@@ -116,15 +116,15 @@ export class BazaarClient implements BazaarApi {
   async addMember(id: number, userId: string): Promise<void> {
     const baseUrl = await this.discoveryApi.getBaseUrl('bazaar');
 
+    const { picture } = await this.identityApi.getProfileInfo();
+
     await fetch(`${baseUrl}/projects/${id}/member/${userId}`, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        picture: this.identityApi.getProfile()?.picture,
-      }),
+      body: JSON.stringify({ picture }),
     });
   }
 
