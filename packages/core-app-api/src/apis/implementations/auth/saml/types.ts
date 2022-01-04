@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import { BackstageIdentity, ProfileInfo } from '@backstage/core-plugin-api';
+import {
+  BackstageIdentityResponse,
+  ProfileInfo,
+} from '@backstage/core-plugin-api';
 import { z } from 'zod';
 
 /**
@@ -25,7 +28,7 @@ import { z } from 'zod';
 export type SamlSession = {
   userId: string;
   profile: ProfileInfo;
-  backstageIdentity: BackstageIdentity;
+  backstageIdentity: BackstageIdentityResponse;
 };
 
 export const samlSessionSchema: z.ZodSchema<SamlSession> = z.object({

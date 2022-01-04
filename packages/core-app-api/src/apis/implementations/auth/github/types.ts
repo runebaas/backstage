@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import { ProfileInfo, BackstageIdentity } from '@backstage/core-plugin-api';
+import {
+  ProfileInfo,
+  BackstageIdentityResponse,
+} from '@backstage/core-plugin-api';
 import { z } from 'zod';
 
 /**
@@ -29,7 +32,7 @@ export type GithubSession = {
     expiresAt?: Date;
   };
   profile: ProfileInfo;
-  backstageIdentity: BackstageIdentity;
+  backstageIdentity: BackstageIdentityResponse;
 };
 
 export const githubSessionSchema: z.ZodSchema<GithubSession> = z.object({

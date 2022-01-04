@@ -217,9 +217,6 @@ export type AuthRequestOptions = {
   instantPopup?: boolean;
 };
 
-// @public @deprecated
-export type BackstageIdentity = BackstageIdentityResponse;
-
 // @public
 export type BackstageIdentityApi = {
   getBackstageIdentity(
