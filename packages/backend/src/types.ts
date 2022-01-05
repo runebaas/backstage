@@ -34,6 +34,6 @@ export type PluginEnvironment = {
   reader: UrlReader;
   discovery: PluginEndpointDiscovery;
   tokenManager: TokenManager;
-  permissions: ServerPermissionClient;
+  permissions?: ServerPermissionClient;
   scheduler: PluginTaskScheduler;
 };

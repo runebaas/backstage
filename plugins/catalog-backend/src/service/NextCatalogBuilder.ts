@@ -81,7 +81,7 @@ import { AuthorizedRefreshService } from './AuthorizedRefreshService';
 import { DefaultCatalogRulesEnforcer } from '../ingestion/CatalogRules';
 import { Config } from '@backstage/config';
 import { Logger } from 'winston';
-import { LocationService } from './types';
+import { LocationService, RefreshService } from './types';
 import { connectEntityProviders } from '../processing/connectEntityProviders';
 import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 
@@ -90,7 +90,7 @@ export type CatalogEnvironment = {
   database: PluginDatabaseManager;
   config: Config;
   reader: UrlReader;
-  permissions: ServerPermissionClient;
+  permissions?: ServerPermissionClient;
 };
 
 /**
@@ -386,18 +386,20 @@ export class NextCatalogBuilder {
       locationStore,
       orchestrator,
     );
-    const refreshService = new DefaultRefreshService({
+    let refreshService: RefreshService = new DefaultRefreshService({
       database: processingDatabase,
     });
-    const authorizedRefreshService = new AuthorizedRefreshService(
-      refreshService,
-      permissions,
-    );
+    if (permissions) {
+      refreshService = new AuthorizedRefreshService(
+        refreshService,
+        permissions,
+      );
+    }
     const router = await createNextRouter({
       entitiesCatalog,
       locationAnalyzer,
       locationService,
-      authorizedRefreshService,
+      refreshService,
       logger,
       config,
     });

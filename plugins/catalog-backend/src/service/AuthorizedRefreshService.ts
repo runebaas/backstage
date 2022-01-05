@@ -19,13 +19,13 @@ import { AuthorizeResult } from '@backstage/plugin-permission-common';
 import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 import { RefreshOptions, RefreshService } from './types';
 
-export class AuthorizedRefreshService {
+export class AuthorizedRefreshService implements RefreshService {
   constructor(
     private readonly service: RefreshService,
     private readonly permissionApi: ServerPermissionClient,
   ) {}
 
-  async refresh(options: RefreshOptions, authorizationToken: string) {
+  async refresh(options: RefreshOptions, authorizationToken?: string) {
     const authorizeResponse = (
       await this.permissionApi.authorize(
         [
