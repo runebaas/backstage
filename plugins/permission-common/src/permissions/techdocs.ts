@@ -14,5 +14,18 @@
  * limitations under the License.
  */
 
-export * from './util';
-export * from './techdocs';
+import { Permission } from '../types';
+
+/*
+ * TODO(authorization-framework): TechDocs does not have an isomorphic package; techdocs-common is
+ * a backend package, only used by techdocs-backend (strange but true). For the purposes of
+ * experimentation, we took a shortcut of defining TechDocs permissions here. This does bring up a
+ * troubling realization that any plugin desiring authorization will need a -common package, in
+ * the current setup.
+ */
+export const techdocsReadPermission: Permission = {
+  name: 'techdocs.doc.read',
+  attributes: {
+    action: 'read',
+  },
+};
