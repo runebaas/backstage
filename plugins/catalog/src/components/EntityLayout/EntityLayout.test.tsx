@@ -18,6 +18,7 @@ import { CatalogApi } from '@backstage/catalog-client';
 import { Entity } from '@backstage/catalog-model';
 import { ApiProvider } from '@backstage/core-app-api';
 import { AlertApi, alertApiRef } from '@backstage/core-plugin-api';
+import { permissionApiRef } from '@backstage/plugin-permission-react';
 import {
   AsyncEntityProvider,
   catalogApiRef,
@@ -27,6 +28,7 @@ import {
   starredEntitiesApiRef,
 } from '@backstage/plugin-catalog-react';
 import {
+  MockPermissionApi,
   MockStorageApi,
   renderInTestApp,
   TestApiRegistry,
@@ -35,6 +37,13 @@ import { act, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { Route, Routes } from 'react-router';
 import { EntityLayout } from './EntityLayout';
+
+jest.mock('@backstage/plugin-catalog-react', () => ({
+  ...jest.requireActual('@backstage/plugin-catalog-react'),
+  useEntityPermission: jest
+    .fn()
+    .mockReturnValue({ isAllowed: jest.fn().mockReturnValue(true) }),
+}));
 
 const mockEntity = {
   kind: 'MyKind',
@@ -50,6 +59,7 @@ const mockApis = TestApiRegistry.from(
     starredEntitiesApiRef,
     new DefaultStarredEntitiesApi({ storageApi: MockStorageApi.create() }),
   ],
+  [permissionApiRef, new MockPermissionApi()],
 );
 
 describe('EntityLayout', () => {
