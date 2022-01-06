@@ -16,6 +16,7 @@
 
 import { TestDatabaseId, TestDatabases } from '@backstage/backend-test-utils';
 import { Entity, stringifyEntityRef } from '@backstage/catalog-model';
+import { AuthorizeResult } from '@backstage/plugin-permission-common';
 import { Knex } from 'knex';
 import { v4 as uuid } from 'uuid';
 import { applyDatabaseMigrations } from '../database/migrations';
@@ -31,6 +32,14 @@ describe('NextEntitiesCatalog', () => {
   const databases = TestDatabases.create({
     ids: ['POSTGRES_13', 'POSTGRES_9', 'SQLITE_3'],
   });
+
+  const permissionClient = {
+    authorize: jest.fn().mockResolvedValue([
+      {
+        result: AuthorizeResult.ALLOW,
+      },
+    ]),
+  };
 
   async function createDatabase(databaseId: TestDatabaseId) {
     const knex = await databases.init(databaseId);
@@ -149,7 +158,12 @@ describe('NextEntitiesCatalog', () => {
         await addEntity(knex, parent, [{ entity: grandparent }]);
         await addEntity(knex, root, [{ entity: parent }]);
 
-        const catalog = new NextEntitiesCatalog(knex);
+        // TODO(authorization-framework: pass mock permission client, extend test suite to check authz behavior)
+        const catalog = new NextEntitiesCatalog(
+          knex,
+          permissionClient as any,
+          [],
+        );
         const result = await catalog.entityAncestry('k:default/root');
         expect(result.rootEntityRef).toEqual('k:default/root');
 
@@ -179,7 +193,12 @@ describe('NextEntitiesCatalog', () => {
       'should throw error if the entity does not exist, %p',
       async databaseId => {
         const { knex } = await createDatabase(databaseId);
-        const catalog = new NextEntitiesCatalog(knex);
+        // TODO(authorization-framework: pass mock permission client, extend test suite to check authz behavior)
+        const catalog = new NextEntitiesCatalog(
+          knex,
+          permissionClient as any,
+          [],
+        );
         await expect(() =>
           catalog.entityAncestry('k:default/root'),
         ).rejects.toThrow('No such entity k:default/root');
@@ -222,7 +241,12 @@ describe('NextEntitiesCatalog', () => {
         await addEntity(knex, parent2, [{ entity: grandparent }]);
         await addEntity(knex, root, [{ entity: parent1 }, { entity: parent2 }]);
 
-        const catalog = new NextEntitiesCatalog(knex);
+        // TODO(authorization-framework: pass mock permission client, extend test suite to check authz behavior)
+        const catalog = new NextEntitiesCatalog(
+          knex,
+          permissionClient as any,
+          [],
+        );
         const result = await catalog.entityAncestry('k:default/root');
         expect(result.rootEntityRef).toEqual('k:default/root');
 
@@ -278,13 +302,18 @@ describe('NextEntitiesCatalog', () => {
         };
         await addEntityToSearch(knex, entity1);
         await addEntityToSearch(knex, entity2);
-        const catalog = new NextEntitiesCatalog(knex);
+        // TODO(authorization-framework: pass mock permission client, extend test suite to check authz behavior)
+        const catalog = new NextEntitiesCatalog(
+          knex,
+          permissionClient as any,
+          [],
+        );
 
         const testFilter = {
           key: 'spec.test',
         };
         const request = { filter: testFilter };
-        const { entities } = await catalog.entities(request);
+        const { entities } = await catalog.entities(request, false);
 
         expect(entities.length).toBe(1);
         expect(entities[0]).toEqual(entity2);
@@ -311,7 +340,12 @@ describe('NextEntitiesCatalog', () => {
         };
         await addEntityToSearch(knex, entity1);
         await addEntityToSearch(knex, entity2);
-        const catalog = new NextEntitiesCatalog(knex);
+        // TODO(authorization-framework: pass mock permission client, extend test suite to check authz behavior)
+        const catalog = new NextEntitiesCatalog(
+          knex,
+          permissionClient as any,
+          [],
+        );
 
         const testFilter = {
           not: {
@@ -319,7 +353,7 @@ describe('NextEntitiesCatalog', () => {
           },
         };
         const request = { filter: testFilter };
-        const { entities } = await catalog.entities(request);
+        const { entities } = await catalog.entities(request, false);
 
         expect(entities.length).toBe(1);
         expect(entities[0]).toEqual(entity1);
@@ -358,7 +392,12 @@ describe('NextEntitiesCatalog', () => {
         await addEntityToSearch(knex, entity2);
         await addEntityToSearch(knex, entity3);
         await addEntityToSearch(knex, entity4);
-        const catalog = new NextEntitiesCatalog(knex);
+        // TODO(authorization-framework: pass mock permission client, extend test suite to check authz behavior)
+        const catalog = new NextEntitiesCatalog(
+          knex,
+          permissionClient as any,
+          [],
+        );
 
         const testFilter1 = {
           key: 'metadata.org',
@@ -387,7 +426,7 @@ describe('NextEntitiesCatalog', () => {
             ],
           },
         };
-        const { entities } = await catalog.entities(request);
+        const { entities } = await catalog.entities(request, false);
 
         expect(entities.length).toBe(2);
         expect(entities).toContainEqual(entity2);
@@ -413,7 +452,12 @@ describe('NextEntitiesCatalog', () => {
         };
         await addEntityToSearch(knex, entity1);
         await addEntityToSearch(knex, entity2);
-        const catalog = new NextEntitiesCatalog(knex);
+        // TODO(authorization-framework: pass mock permission client, extend test suite to check authz behavior)
+        const catalog = new NextEntitiesCatalog(
+          knex,
+          permissionClient as any,
+          [],
+        );
 
         const testFilter1 = {
           key: 'metadata.org',
@@ -429,7 +473,7 @@ describe('NextEntitiesCatalog', () => {
             },
           },
         };
-        const { entities } = await catalog.entities(request);
+        const { entities } = await catalog.entities(request, false);
 
         expect(entities.length).toBe(1);
         expect(entities).toContainEqual(entity1);
@@ -455,7 +499,11 @@ describe('NextEntitiesCatalog', () => {
         };
         await addEntityToSearch(knex, entity1);
         await addEntityToSearch(knex, entity2);
-        const catalog = new NextEntitiesCatalog(knex);
+        const catalog = new NextEntitiesCatalog(
+          knex,
+          permissionClient as any,
+          [],
+        );
 
         const testFilter = {
           key: 'kind',

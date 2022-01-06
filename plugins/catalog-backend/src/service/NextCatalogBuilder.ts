@@ -80,6 +80,7 @@ import { DefaultRefreshService } from './DefaultRefreshService';
 import { DefaultCatalogRulesEnforcer } from '../ingestion/CatalogRules';
 import { Config } from '@backstage/config';
 import { Logger } from 'winston';
+import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 import { LocationService } from './types';
 import { connectEntityProviders } from '../processing/connectEntityProviders';
 import { CatalogPermissionRule } from '../permissions/types';
@@ -90,6 +91,7 @@ export type CatalogEnvironment = {
   database: PluginDatabaseManager;
   config: Config;
   reader: UrlReader;
+  permissions: ServerPermissionClient;
 };
 
 /**
@@ -344,7 +346,7 @@ export class NextCatalogBuilder {
     locationService: LocationService;
     router: Router;
   }> {
-    const { config, database, logger } = this.env;
+    const { config, database, logger, permissions } = this.env;
 
     const policy = this.buildEntityPolicy();
     const processors = this.buildProcessors();
@@ -373,7 +375,11 @@ export class NextCatalogBuilder {
       parser,
       policy,
     });
-    const entitiesCatalog = new NextEntitiesCatalog(dbClient);
+    const entitiesCatalog = new NextEntitiesCatalog(
+      dbClient,
+      permissions,
+      this.permissionRules,
+    );
     const stitcher = new Stitcher(dbClient, logger);
 
     const locationStore = new DefaultLocationStore(dbClient);

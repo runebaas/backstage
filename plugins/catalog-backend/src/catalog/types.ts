@@ -67,6 +67,7 @@ export type PageInfo =
     };
 
 export type EntitiesRequest = {
+  authorizationToken?: string;
   filter?: EntityFilter;
   fields?: (entity: Entity) => Entity;
   pagination?: EntityPagination;
@@ -105,7 +106,11 @@ export type EntitiesCatalog = {
    *
    * @param request - Request options
    */
-  entities(request?: EntitiesRequest): Promise<EntitiesResponse>;
+  entities(
+    request?: EntitiesRequest,
+    // TODO(authorization-framework - this should be based on whether the request originates from a backend.
+    authorize?: boolean,
+  ): Promise<EntitiesResponse>;
 
   /**
    * Removes a single entity.

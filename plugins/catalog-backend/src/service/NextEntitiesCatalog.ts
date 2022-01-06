@@ -15,7 +15,14 @@
  */
 
 import { Entity, stringifyEntityRef } from '@backstage/catalog-model';
+import { catalogEntityReadPermission } from '@backstage/plugin-catalog-common';
 import { InputError, NotFoundError } from '@backstage/errors';
+import { AuthorizeResult } from '@backstage/plugin-permission-common';
+import {
+  ConditionTransformer,
+  createConditionTransformer,
+  ServerPermissionClient,
+} from '@backstage/plugin-permission-node';
 import { Knex } from 'knex';
 import {
   EntitiesCatalog,
@@ -33,6 +40,7 @@ import {
   DbSearchRow,
   DbPageInfo,
 } from '../database/tables';
+import { CatalogPermissionRule } from '../permissions/types';
 
 function parsePagination(input?: EntityPagination): {
   limit?: number;
@@ -151,12 +159,49 @@ function parseFilter(
 }
 
 export class NextEntitiesCatalog implements EntitiesCatalog {
-  constructor(private readonly database: Knex) {}
+  private readonly transformConditions: ConditionTransformer<EntitiesSearchFilter>;
 
-  async entities(request?: EntitiesRequest): Promise<EntitiesResponse> {
+  constructor(
+    private readonly database: Knex,
+    private readonly permissionApi: ServerPermissionClient,
+    permissionRules: CatalogPermissionRule[],
+  ) {
+    this.transformConditions = createConditionTransformer(permissionRules);
+  }
+
+  async entities(
+    request?: EntitiesRequest,
+    // TODO(authorization-framework - this should be based on whether the request originates from a backend.
+    authorize: boolean = true,
+  ): Promise<EntitiesResponse> {
     const db = this.database;
 
     let entitiesQuery = db<DbFinalEntitiesRow>('final_entities');
+
+    if (authorize) {
+      const authorizeResponse = (
+        await this.permissionApi.authorize(
+          [{ permission: catalogEntityReadPermission }],
+          {
+            token: request?.authorizationToken,
+          },
+        )
+      )[0];
+
+      if (authorizeResponse.result === AuthorizeResult.DENY) {
+        return {
+          entities: [],
+          pageInfo: { hasNextPage: false },
+        };
+      } else if (authorizeResponse.result === AuthorizeResult.CONDITIONAL) {
+        entitiesQuery = parseFilter(
+          this.transformConditions(authorizeResponse.conditions),
+          entitiesQuery,
+          db,
+        );
+      }
+    }
+
     if (request?.filter) {
       entitiesQuery = parseFilter(request.filter, entitiesQuery, db);
     }

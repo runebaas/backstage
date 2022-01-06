@@ -9,6 +9,8 @@ import { Account } from 'aws-sdk/clients/organizations';
 import { BitbucketIntegration } from '@backstage/integration';
 import { CatalogApi } from '@backstage/catalog-client';
 import { CatalogEntitiesRequest } from '@backstage/catalog-client';
+import { ConditionalPolicyDecision } from '@backstage/plugin-permission-node';
+import { Conditions } from '@backstage/plugin-permission-node';
 import { Config } from '@backstage/config';
 import { DocumentCollator } from '@backstage/search-common';
 import { Entity } from '@backstage/catalog-model';
@@ -25,6 +27,8 @@ import { Location as Location_2 } from '@backstage/catalog-model';
 import { LocationSpec } from '@backstage/catalog-model';
 import { Logger as Logger_2 } from 'winston';
 import { Organizations } from 'aws-sdk';
+import { PermissionCondition } from '@backstage/plugin-permission-common';
+import { PermissionCriteria } from '@backstage/plugin-permission-common';
 import { PermissionRule } from '@backstage/plugin-permission-node';
 import { PluginDatabaseManager } from '@backstage/backend-common';
 import { PluginEndpointDiscovery } from '@backstage/backend-common';
@@ -32,6 +36,7 @@ import { ResourceEntityV1alpha1 } from '@backstage/catalog-model';
 import { Router } from 'express';
 import { ScmIntegrationRegistry } from '@backstage/integration';
 import { ScmIntegrations } from '@backstage/integration';
+import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 import { TokenManager } from '@backstage/backend-common';
 import { UrlReader } from '@backstage/backend-common';
 import { Validators } from '@backstage/catalog-model';
@@ -302,6 +307,7 @@ export type CatalogEnvironment = {
   database: PluginDatabaseManager;
   config: Config;
   reader: UrlReader;
+  permissions: ServerPermissionClient;
 };
 
 // @public
@@ -526,6 +532,18 @@ export class CommonDatabase implements Database {
   ): Promise<DbEntityResponse>;
 }
 
+// Warning: (ae-missing-release-tag) "conditions" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
+//
+// @public (undocumented)
+export const conditions: Conditions<{
+  hasAnnotation: CatalogPermissionRule;
+  hasLabel: CatalogPermissionRule;
+  hasMetadata: CatalogPermissionRule;
+  hasSpec: CatalogPermissionRule;
+  isEntityKind: CatalogPermissionRule;
+  isEntityOwner: CatalogPermissionRule;
+}>;
+
 // Warning: (ae-missing-release-tag) "CreateDatabaseOptions" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
 //
 // @public @deprecated (undocumented)
@@ -539,6 +557,13 @@ export type CreateDatabaseOptions = {
 export function createNextRouter(
   options: NextRouterOptions,
 ): Promise<express.Router>;
+
+// Warning: (ae-missing-release-tag) "createPolicyDecision" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
+//
+// @public (undocumented)
+export const createPolicyDecision: (
+  conditions: PermissionCriteria<PermissionCondition<unknown[]>>,
+) => ConditionalPolicyDecision;
 
 // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
 // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
@@ -838,7 +863,10 @@ export function durationText(startTimestamp: [number, number]): string;
 
 // @public (undocumented)
 export type EntitiesCatalog = {
-  entities(request?: EntitiesRequest): Promise<EntitiesResponse>;
+  entities(
+    request?: EntitiesRequest,
+    authorize?: boolean,
+  ): Promise<EntitiesResponse>;
   removeEntityByUid(uid: string): Promise<void>;
   batchAddOrUpdateEntities?(
     requests: EntityUpsertRequest[],
@@ -855,6 +883,7 @@ export type EntitiesCatalog = {
 //
 // @public (undocumented)
 export type EntitiesRequest = {
+  authorizationToken?: string;
   filter?: EntityFilter;
   fields?: (entity: Entity) => Entity;
   pagination?: EntityPagination;
@@ -1588,9 +1617,9 @@ export class UrlReaderProcessor implements CatalogProcessor {
 
 // Warnings were encountered during analysis:
 //
-// src/catalog/types.d.ts:94:8 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
 // src/catalog/types.d.ts:95:8 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
 // src/catalog/types.d.ts:96:8 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
+// src/catalog/types.d.ts:97:8 - (tsdoc-param-tag-with-invalid-name) The @param block should be followed by a valid parameter name: The identifier cannot non-word characters
 // src/ingestion/processors/GithubMultiOrgReaderProcessor.d.ts:23:9 - (ae-forgotten-export) The symbol "GithubMultiOrgConfig" needs to be exported by the entry point index.d.ts
 // src/ingestion/types.d.ts:8:8 - (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
 // src/legacy/database/types.d.ts:98:8 - (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen

@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-import { getVoidLogger, UrlReader } from '@backstage/backend-common';
+import {
+  getVoidLogger,
+  PluginEndpointDiscovery,
+  ServerTokenManager,
+  UrlReader,
+} from '@backstage/backend-common';
 import { Entity } from '@backstage/catalog-model';
 import { ConfigReader } from '@backstage/config';
+import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 import { Knex } from 'knex';
 import yaml from 'yaml';
 import { DatabaseManager } from '../database';
@@ -40,6 +46,14 @@ const dummyEntity = {
 
 const dummyEntityYaml = yaml.stringify(dummyEntity);
 
+const discoveryApi: PluginEndpointDiscovery = {
+  async getBaseUrl(_pluginId) {
+    return 'http://example.com';
+  },
+  async getExternalBaseUrl(_pluginId) {
+    return 'http://example.com';
+  },
+};
 describe('CatalogBuilder', () => {
   let db: Knex<any, unknown[]>;
   const reader: jest.Mocked<UrlReader> = {
@@ -47,11 +61,16 @@ describe('CatalogBuilder', () => {
     readTree: jest.fn(),
     search: jest.fn(),
   };
+  const configReader = new ConfigReader({});
   const env: CatalogEnvironment = {
     logger: getVoidLogger(),
     database: { getClient: async () => db },
-    config: new ConfigReader({}),
+    config: configReader,
     reader,
+    permissions: ServerPermissionClient.fromConfig(configReader, {
+      discovery: discoveryApi,
+      tokenManager: ServerTokenManager.noop(),
+    }),
   };
 
   beforeEach(async () => {

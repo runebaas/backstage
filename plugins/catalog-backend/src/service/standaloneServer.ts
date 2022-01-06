@@ -17,11 +17,14 @@
 import {
   createServiceBuilder,
   loadBackendConfig,
+  ServerTokenManager,
+  SingleHostDiscovery,
   UrlReaders,
   useHotMemoize,
 } from '@backstage/backend-common';
 import { Server } from 'http';
 import { Logger } from 'winston';
+import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 import { DatabaseManager } from '../legacy/database';
 import { CatalogBuilder } from '../legacy/service/CatalogBuilder';
 import { createRouter } from '../legacy/service';
@@ -42,6 +45,12 @@ export async function startStandaloneServer(
   const db = useHotMemoize(module, () =>
     DatabaseManager.createInMemoryDatabaseConnection(),
   );
+  const discovery = SingleHostDiscovery.fromConfig(config);
+  const tokenManager = ServerTokenManager.fromConfig(config, { logger });
+  const permissions = ServerPermissionClient.fromConfig(config, {
+    discovery,
+    tokenManager,
+  });
 
   logger.debug('Creating application...');
   const builder = new CatalogBuilder({
@@ -49,6 +58,7 @@ export async function startStandaloneServer(
     database: { getClient: () => db },
     config,
     reader,
+    permissions,
   });
   const { entitiesCatalog, locationsCatalog, higherOrderOperation } =
     await builder.build();
