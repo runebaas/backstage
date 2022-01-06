@@ -34,19 +34,16 @@ import { TechDocsEntityMetadata, TechDocsMetadata } from './types';
 export class TechDocsClient implements TechDocsApi {
   public configApi: Config;
   public discoveryApi: DiscoveryApi;
-  public identityApi: IdentityApi;
   private fetchApi: FetchApi;
 
   constructor(options: {
     configApi: Config;
     discoveryApi: DiscoveryApi;
-    identityApi: IdentityApi;
-    fetchApi?: FetchApi;
+    fetchApi: FetchApi;
   }) {
     this.configApi = options.configApi;
     this.discoveryApi = options.discoveryApi;
-    this.identityApi = options.identityApi;
-    this.fetchApi = options.fetchApi ?? { fetch };
+    this.fetchApi = options.fetchApi;
   }
 
   async getApiOrigin(): Promise<string> {
@@ -70,12 +67,8 @@ export class TechDocsClient implements TechDocsApi {
 
     const apiOrigin = await this.getApiOrigin();
     const requestUrl = `${apiOrigin}/metadata/techdocs/${namespace}/${kind}/${name}`;
-    const token = await this.identityApi.getIdToken();
 
-    const request = await this.fetchApi.fetch(`${requestUrl}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-
+    const request = await this.fetchApi.fetch(`${requestUrl}`);
     if (!request.ok) {
       throw await ResponseError.fromResponse(request);
     }
@@ -98,12 +91,8 @@ export class TechDocsClient implements TechDocsApi {
 
     const apiOrigin = await this.getApiOrigin();
     const requestUrl = `${apiOrigin}/metadata/entity/${namespace}/${kind}/${name}`;
-    const token = await this.identityApi.getIdToken();
 
-    const request = await this.fetchApi.fetch(`${requestUrl}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-
+    const request = await this.fetchApi.fetch(`${requestUrl}`);
     if (!request.ok) {
       throw await ResponseError.fromResponse(request);
     }
@@ -127,12 +116,12 @@ export class TechDocsStorageClient implements TechDocsStorageApi {
     configApi: Config;
     discoveryApi: DiscoveryApi;
     identityApi: IdentityApi;
-    fetchApi?: FetchApi;
+    fetchApi: FetchApi;
   }) {
     this.configApi = options.configApi;
     this.discoveryApi = options.discoveryApi;
     this.identityApi = options.identityApi;
-    this.fetchApi = options.fetchApi ?? { fetch };
+    this.fetchApi = options.fetchApi;
   }
 
   async getApiOrigin(): Promise<string> {
@@ -166,13 +155,9 @@ export class TechDocsStorageClient implements TechDocsStorageApi {
 
     const storageUrl = await this.getStorageUrl();
     const url = `${storageUrl}/${namespace}/${kind}/${name}/${path}`;
-    const token = await this.identityApi.getIdToken();
 
     const request = await this.fetchApi.fetch(
       `${url.endsWith('/') ? url : `${url}/`}index.html`,
-      {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      },
     );
 
     let errorMessage = '';
@@ -213,7 +198,7 @@ export class TechDocsStorageClient implements TechDocsStorageApi {
 
     const apiOrigin = await this.getApiOrigin();
     const url = `${apiOrigin}/sync/${namespace}/${kind}/${name}`;
-    const token = await this.identityApi.getIdToken();
+    const { token } = await this.identityApi.getCredentials();
 
     return new Promise((resolve, reject) => {
       // Polyfill is used to add support for custom headers and auth
