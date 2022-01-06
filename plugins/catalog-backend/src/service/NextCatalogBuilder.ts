@@ -127,7 +127,7 @@ export class NextCatalogBuilder {
       maxSeconds: 150,
     });
   private locationAnalyzer: LocationAnalyzer | undefined = undefined;
-  private permissionRules: CatalogPermissionRule[];
+  private permissionRules: CatalogPermissionRule<unknown[]>[];
 
   constructor(env: CatalogEnvironment) {
     this.env = env;
@@ -328,7 +328,7 @@ export class NextCatalogBuilder {
    *
    * @param permissionRules - Additional permission rules
    */
-  addPermissionRules(...permissionRules: CatalogPermissionRule[]) {
+  addPermissionRules(...permissionRules: CatalogPermissionRule<unknown[]>[]) {
     this.permissionRules.push(...permissionRules);
   }
 
