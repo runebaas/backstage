@@ -40,6 +40,8 @@
     "@backstage/integration": "^0.7.0",
     "@backstage/integration-react": "^0.1.17",
     "@backstage/plugin-catalog-react": "^0.6.10",
+    "@backstage/plugin-permission-common": "^0.3.0",
+    "@backstage/plugin-permission-react": "^0.2.0",
     "@backstage/plugin-scaffolder-common": "^0.1.2",
     "@backstage/theme": "^0.2.14",
     "@backstage/types": "^0.1.1",
