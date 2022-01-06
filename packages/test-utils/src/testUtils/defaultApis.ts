@@ -57,7 +57,13 @@ import {
   oidcAuthApiRef,
   bitbucketAuthApiRef,
   atlassianAuthApiRef,
+  identityApiRef,
 } from '@backstage/core-plugin-api';
+
+import {
+  IdentityPermissionApi,
+  permissionApiRef,
+} from '@backstage/plugin-permission-react';
 
 // TODO(Rugvip): This is just a copy of the createApp default APIs for now, but
 //               we should clean up this list a bit move more things over to mocks.
@@ -260,5 +266,15 @@ export const defaultApis = [
         environment: configApi.getOptionalString('auth.environment'),
       });
     },
+  }),
+  createApiFactory({
+    api: permissionApiRef,
+    deps: {
+      discovery: discoveryApiRef,
+      identity: identityApiRef,
+      config: configApiRef,
+    },
+    factory: ({ config, discovery, identity }) =>
+      IdentityPermissionApi.create({ config, discovery, identity }),
   }),
 ];
