@@ -1360,7 +1360,7 @@ export interface NextRouterOptions {
   // (undocumented)
   logger: Logger_2;
   // (undocumented)
-  permissionRules?: CatalogPermissionRule[];
+  permissionIntegrationRouter?: express.Router;
   // (undocumented)
   refreshService?: RefreshService;
 }
