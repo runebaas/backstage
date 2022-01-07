@@ -304,13 +304,6 @@ export type CatalogEnvironment = {
   reader: UrlReader;
 };
 
-// @public
-export type CatalogPermissionRule<TParams extends unknown[]> = PermissionRule<
-  Entity,
-  EntitiesSearchFilter,
-  TParams
->;
-
 // Warning: (ae-missing-release-tag) "CatalogProcessingEngine" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
 //
 // @public (undocumented)
@@ -529,8 +522,8 @@ export class CommonDatabase implements Database {
 
 // @public
 export const createCatalogPermissionRule: <TParams extends unknown[]>(
-  rule: CatalogPermissionRule<TParams>,
-) => CatalogPermissionRule<TParams>;
+  rule: PermissionRule<Entity, EntitiesSearchFilter, TParams>,
+) => PermissionRule<Entity, EntitiesSearchFilter, TParams>;
 
 // Warning: (ae-missing-release-tag) "CreateDatabaseOptions" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
 //
@@ -1316,7 +1309,11 @@ export class NextCatalogBuilder {
   // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
   addEntityProvider(...providers: EntityProvider[]): NextCatalogBuilder;
   addPermissionRules(
-    ...permissionRules: CatalogPermissionRule<unknown[]>[]
+    ...permissionRules: PermissionRule<
+      Entity,
+      EntitiesSearchFilter,
+      unknown[]
+    >[]
   ): void;
   // Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
   addProcessor(...processors: CatalogProcessor[]): NextCatalogBuilder;
@@ -1365,7 +1362,7 @@ export interface NextRouterOptions {
   // (undocumented)
   logger: Logger_2;
   // (undocumented)
-  permissionRules?: CatalogPermissionRule<unknown[]>[];
+  permissionRules?: PermissionRule<Entity, EntitiesSearchFilter, unknown[]>[];
   // (undocumented)
   refreshService?: RefreshService;
 }
@@ -1400,12 +1397,28 @@ export function parseEntityYaml(
 
 // @public
 export const permissionRules: {
-  hasAnnotation: CatalogPermissionRule<[annotation: string]>;
-  hasLabel: CatalogPermissionRule<[label: string]>;
-  hasMetadata: CatalogPermissionRule<[key: string, value?: string | undefined]>;
-  hasSpec: CatalogPermissionRule<[key: string, value?: string | undefined]>;
-  isEntityKind: CatalogPermissionRule<[kinds: string[]]>;
-  isEntityOwner: CatalogPermissionRule<[claims: string[]]>;
+  hasAnnotation: PermissionRule<
+    Entity,
+    EntitiesSearchFilter,
+    [annotation: string]
+  >;
+  hasLabel: PermissionRule<Entity, EntitiesSearchFilter, [label: string]>;
+  hasMetadata: PermissionRule<
+    Entity,
+    EntitiesSearchFilter,
+    [key: string, value?: string | undefined]
+  >;
+  hasSpec: PermissionRule<
+    Entity,
+    EntitiesSearchFilter,
+    [key: string, value?: string | undefined]
+  >;
+  isEntityKind: PermissionRule<Entity, EntitiesSearchFilter, [kinds: string[]]>;
+  isEntityOwner: PermissionRule<
+    Entity,
+    EntitiesSearchFilter,
+    [claims: string[]]
+  >;
 };
 
 // Warning: (ae-missing-release-tag) "PlaceholderProcessor" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
