@@ -1,5 +1,11 @@
 # @backstage/plugin-catalog-graphql
 
+## 0.2.15
+
+### Patch Changes
+
+- cf01627a33: Bump graphql versions
+
 ## 0.2.14
 
 ### Patch Changes

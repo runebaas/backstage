@@ -1,5 +1,11 @@
 # @backstage/plugin-todo-backend
 
+## 0.1.18
+
+### Patch Changes
+
+- 2260702efd: Properly exported all referenced types
+
 ## 0.1.17
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @backstage/plugin-pagerduty
 
+## 0.3.22
+
+### Patch Changes
+
+- 7612e2856b: Clean up emptystate.svg image, removing wrong white artifact from the background
+
 ## 0.3.21
 
 ### Patch Changes

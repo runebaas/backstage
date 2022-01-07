@@ -1,5 +1,11 @@
 # @backstage/plugin-splunk-on-call
 
+## 0.3.19
+
+### Patch Changes
+
+- 7612e2856b: Clean up emptystate.svg image, removing wrong white artifact from the background
+
 ## 0.3.18
 
 ### Patch Changes

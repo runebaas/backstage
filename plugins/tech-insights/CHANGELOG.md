@@ -1,5 +1,11 @@
 # @backstage/plugin-tech-insights
 
+## 0.1.5
+
+### Patch Changes
+
+- 48580d0fbb: fix React warning because of missing `key` prop
+
 ## 0.1.4
 
 ### Patch Changes

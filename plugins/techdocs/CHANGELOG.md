@@ -1,5 +1,11 @@
 # @backstage/plugin-techdocs
 
+## 0.12.14
+
+### Patch Changes
+
+- 1628ca3f49: Fix an issue where the TechDocs sidebar is hidden when the Backstage sidebar is pinned at smaller screen sizes
+
 ## 0.12.13
 
 ### Patch Changes

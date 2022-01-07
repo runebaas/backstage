@@ -32,7 +32,7 @@
     "techdocs-cli": "bin/techdocs-cli"
   },
   "devDependencies": {
-    "@backstage/cli": "^0.10.4",
+    "@backstage/cli": "^0.11.0",
     "@types/commander": "^2.12.2",
     "@types/fs-extra": "^9.0.6",
     "@types/http-proxy": "^1.17.4",
@@ -41,7 +41,7 @@
     "@types/react-dev-utils": "^9.0.4",
     "@types/serve-handler": "^6.1.0",
     "@types/webpack-env": "^1.15.3",
-    "embedded-techdocs-app": "0.2.58",
+    "embedded-techdocs-app": "0.2.59",
     "find-process": "^1.4.5",
     "nodemon": "^2.0.2",
     "ts-node": "^10.0.0"

@@ -1,5 +1,14 @@
 # embedded-techdocs-app
 
+## 0.2.59
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/test-utils@0.2.2
+  - @backstage/cli@0.11.0
+  - @backstage/plugin-techdocs@0.12.14
+
 ## 0.2.58
 
 ### Patch Changes
